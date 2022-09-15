@@ -1,0 +1,51 @@
+name: 'Publish Documentation'
+description: 'Generates and deploys an aggregated single page documentation to a Google cloud storage bucket'
+inputs:
+  gcloud-service-auth:
+    required: true
+    description: 'Credentials file for gcloud set up'
+  bucket-name:
+    required: true
+    description: 'The name of the Google storage bucket to upload documentation to'
+  go-version:
+    required: false
+    description: 'The version of go used to install md2html converter'
+    default: '1.18.4'
+  markdown-file-paths:
+    required: true
+    description: 'List of relative paths of markdown files to include'
+  css-file-path:
+    required: false
+    description: 'Relative path to the CSS file to use for styling the aggregated documentation HTML page'
+    default: 'styles/default.css'
+  documentation-page-title:
+    required: true
+    description: 'Title of the single page documentation page'
+  documentation-file-storage-name:
+    required: true
+    description: 'Name used to store the single page HTML documentation page in Google Cloud storage bucket. Do not include the .html extension'
+runs:
+  using: "composite"
+  steps:
+    - name: Install and set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ inputs.go-version }}
+    - name: Generate single page HTML documentation
+      run: scripts/generate-single-page-doc.sh
+      shell: bash
+      env:
+        LIST_OF_PATHS_TO_MARKDOWN_FILES: ${{ inputs.markdown-file-paths }}
+        PATH_TO_CSS_FILE: ${{ inputs.css-file-path }}
+        PAGE_TITLE: ${{ inputs.documentation-page-title }}
+    - name: Login to Google Cloud
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: ${{ inputs.gcloud-service-auth }}
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v0'
+    - name: Upload generated single page documentation (aggregate of all specified mark down files)
+      uses: 'google-github-actions/upload-cloud-storage@v0'
+      with:
+        path: 'build/documentation.html'
+        destination: 'gs://${{ inputs.bucket-name }}/${{ inputs.documentation-file-storage-name }}.html'
