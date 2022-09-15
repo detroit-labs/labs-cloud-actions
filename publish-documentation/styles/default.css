@@ -1,0 +1,15 @@
+/*
+* Default CSS file for the single page documentation.
+* To use a different CSS file, use the css-file-path action input.
+*/
+
+#markdown-toc a {
+    color: #fff;
+    text-decoration: none;
+    display: inline-flex;
+    width: 100%;
+    line-height: 2;
+    white-space: normal;
+    overflow: unset;
+    text-overflow: unset;
+}
