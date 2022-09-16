@@ -32,7 +32,7 @@ runs:
       with:
         go-version: ${{ inputs.go-version }}
     - name: Generate single page HTML documentation
-      run: scripts/generate-single-page-doc.sh
+      run: ${{ github.action_path }}/scripts/generate-single-page-doc.sh
       shell: bash
       env:
         LIST_OF_PATHS_TO_MARKDOWN_FILES: ${{ inputs.markdown-file-paths }}
