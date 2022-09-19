@@ -35,7 +35,7 @@ runs:
       run: ${{ github.action_path }}/scripts/generate-single-page-doc.sh
       shell: bash
       env:
-        LIST_OF_PATHS_TO_MARKDOWN_FILES: ${{ inputs.markdown-file-paths }}
+        LIST_OF_PATHS_TO_MARKDOWN_FILES: ${{ github.action_path }}/${{ inputs.markdown-file-paths }}
         PATH_TO_CSS_FILE: ${{ github.action_path }}/${{ inputs.css-file-path }}
         PAGE_TITLE: ${{ inputs.documentation-page-title }}
     - name: Login to Google Cloud
