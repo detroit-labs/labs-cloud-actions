@@ -6,9 +6,9 @@ BUILDDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 mkdir bin
 echo "$BUILDDIR/bin"
-GOBIN install github.com/nocd5/md2html@latest
+GOBIN="$BUILDDIR/bin" go install github.com/nocd5/md2html@latest
 
-bin/md2html -e -t $LIST_OF_PATHS_TO_MARKDOWN_FILES
+bin/md2html -e -t $LIST_OF_PATHS_TO_MARKDOWN_FILES \
 -c $PATH_TO_CSS_FILE \
 -o documentation.html
 
