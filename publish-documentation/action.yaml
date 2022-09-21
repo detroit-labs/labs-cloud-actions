@@ -36,7 +36,8 @@ runs:
       shell: bash
       env:
         LIST_OF_PATHS_TO_MARKDOWN_FILES: ${{ inputs.markdown-file-paths }}
-        PATH_TO_CSS_FILE: ${{ github.action_path }}/${{ inputs.css-file-path }}
+        PATH_TO_GITHUB_ACTION: ${{ github.action_path }}
+        PATH_TO_CSS_FILE: ${{ inputs.css-file-path }}
         PAGE_TITLE: ${{ inputs.documentation-page-title }}
     - name: Login to Google Cloud
       uses: 'google-github-actions/auth@v0'
