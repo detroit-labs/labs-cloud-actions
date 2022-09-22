@@ -38,6 +38,7 @@ runs:
         LIST_OF_PATHS_TO_MARKDOWN_FILES: ${{ inputs.markdown-file-paths }}
         PATH_TO_CSS_FILE: ${{ github.action_path }}/${{ inputs.css-file-path }}
         PAGE_TITLE: ${{ inputs.documentation-page-title }}
+        DOCUMENTATION_FILE_NAME: ${{ inputs.documentation-file-storage-name }}
     - name: Login to Google Cloud
       uses: 'google-github-actions/auth@v0'
       with:
@@ -47,5 +48,5 @@ runs:
     - name: Upload generated single page documentation (aggregate of all specified mark down files)
       uses: 'google-github-actions/upload-cloud-storage@v0'
       with:
-        path: 'build/documentation.html'
-        destination: 'gs://${{ inputs.bucket-name }}/${{ inputs.documentation-file-storage-name }}.html'
+        path: '${{ inputs.documentation-file-storage-name }}.html'
+        destination: '${{ inputs.bucket-name }}'
