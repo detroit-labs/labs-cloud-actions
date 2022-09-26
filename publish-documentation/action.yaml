@@ -23,7 +23,7 @@ inputs:
     description: 'Title of the single page documentation page'
   documentation-file-storage-name:
     required: true
-    description: 'Name used to store the single page HTML documentation page in Google Cloud storage bucket. Do not include the .html extension'
+    description: 'Name used to store the single page HTML documentation page in Google Cloud storage bucket'
 runs:
   using: "composite"
   steps:
@@ -48,5 +48,7 @@ runs:
     - name: Upload generated single page documentation (aggregate of all specified mark down files)
       uses: 'google-github-actions/upload-cloud-storage@v0'
       with:
-        path: '${{ inputs.documentation-file-storage-name }}.html'
+        headers: |-
+          content-type: text/html
+        path: '${{ inputs.documentation-file-storage-name }}'
         destination: '${{ inputs.bucket-name }}'
