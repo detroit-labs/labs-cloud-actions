@@ -1,0 +1,103 @@
+name: 'Build and deploy a Node / React application'
+description: 'Builds and deploys a Node / React application to GKE. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
+
+inputs:
+  gcloud-service-auth:
+    required: true
+    description: 'Credentials file for gcloud set up'
+  project-id:
+    required: true
+    description: 'Google Cloud Project ID'
+  deployment-name:
+    required: true
+    description: 'My Labs Cloud Name'
+  deployment-environment:
+    required: true
+    description: 'Deployment Environment (ex: test, beta, prod, ...)'
+  deployment-region:
+    required: false
+    description: 'The region where your deployment is'
+    default: 'us-central1'
+  deployment-zone:
+    required: false
+    description: 'The zone where your deployment is'
+    default: ''
+  deployment-namespace:
+    required: false
+    description: 'The Kubernetes Namespace where your deployment is'
+    default: 'default'
+  cluster-name:
+    required: false
+    description: 'Kubernetes Cluster where the deployments live, required if updating the deployment'
+  update-deployment:
+    required: false
+    description: 'Boolean indicating if the deployment should be updated along with the image push'
+    default: 'true'
+  build-command:
+    required: false
+    description: 'Command used to build the application before being packaged into a Docker container, defaults to `npm run build`'
+    default: 'npm run build'
+  docker-file-path:
+    required: false
+    description: 'Path to a custom Docker file relative to the project root, omit to use LabsCloud default'
+    default: 'Dockerfile'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      name: Install Node
+      with:
+        node-version-file: '.nvmrc'
+    - name: Install Node dependencies
+      run: npm ci
+    - name: Build Project
+      run: ${{ inputs.build-command }}
+    - id: generate-image-name
+      name: Generate the name of the docker image
+      run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
+    - name: Set default Docker resources
+      run: |-
+        cp ${{ github.action_path }}/Dockerfile Dockerfile
+        cp -R ${{ github.action_path }}/action-scripts action-scripts/
+      if: "${{ inputs.docker-file-path == '' }}"
+    - name: Build and Tag Docker container
+      run: |-
+        docker build -t ${{ steps.generate-image-name.IMAGE_NAME }}:${{ github.sha }} -f ${{ inputs.docker-file-path }} .
+        docker tag ${{ steps.generate-image-name.IMAGE_NAME }}:${{ github.sha }} ${{ steps.generate-image-name.IMAGE_NAME }}:latest
+    - uses: 'google-github-actions/auth@v0'
+      name: Login to Google Cloud
+      with:
+        credentials_json: ${{ inputs.gcloud-service-auth }}
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v0'
+    - name: Authorize Docker push
+      run: gcloud auth configure-docker
+    - name: Build and Push Container
+      run: |-
+        docker push ${{ steps.generate-image-name.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ steps.generate-image-name.IMAGE_NAME }}:latest
+    - name: Set GCloud project
+      run: |-
+        gcloud config set project ${{ inputs.project-id }}
+      if: ${{ inputs.update-deployment == 'true' }}
+    - name: Set GCloud region
+      run: |-
+        gcloud config set compute/region ${{ inputs.deployment-region }}
+      if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone == '' }}
+    - name: Set GCloud zone
+      run: |-
+        gcloud config set compute/zone ${{ inputs.deployment-zone }}
+      if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone != '' }}
+    - name: Fetch k8s cluster credentials
+      run: |-
+        gcloud container clusters get-credentials ${inputs.cluster-name}
+      if: ${{ inputs.update-deployment == 'true' }}
+    - name: Start the latest container
+      run: |-
+        kubectl set image deployment "${inputs.deployment-name}-${inputs.deployment-environment}" "${inputs.deployment-name}"="${{ steps.generate-image-name.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
+      if: ${{ inputs.update-deployment == 'true' }}
+    - name: Checking deployment success status
+      run: |-
+        kubectl rollout status deployment "${inputs.deployment-name}-${inputs.deployment-environment}" --timeout=5m
+      if: ${{ inputs.update-deployment == 'true' }}
