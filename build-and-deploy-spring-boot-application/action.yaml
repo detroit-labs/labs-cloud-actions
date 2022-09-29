@@ -10,14 +10,25 @@ inputs:
     description: 'Google Cloud Project ID'
   deployment-name:
     required: true
-    description: 'My Labs Cloud Name'
+    description: 'Name of the Google Cloud Project deployment'
   deployment-environment:
     required: true
     description: 'Deployment Environment (ex: test, beta, prod, ...)'
+  deployment-region:
+    required: false
+    description: 'The region where your deployment is'
+    default: 'us-central1'
+  deployment-zone:
+    required: false
+    description: 'The zone where your deployment is'
+    default: ''
   deployment-namespace:
     required: false
     description: 'Deployment Kubernetes Namespace'
     default: 'default'
+  cluster-name:
+    required: false
+    description: 'Kubernetes Cluster where the deployments live, required if updating the deployment'
   java-version:
     required: false
     description: 'Version of Java to use'
@@ -44,10 +55,10 @@ runs:
         cache: 'gradle'
     - uses: gradle/gradle-build-action@v2
       name: Install Gradle Wrapper
-    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}:${{ github.sha }}'
+    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
       name: Generate the name of the docker image
       id: generate-image-name
-    - run: ./gradlew clean gnagCheck bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ ${{ inputs.artifactory-password }} --imageName=steps.generate-image-name.IMAGE_NAME
+    - run: ./gradlew clean gnagCheck bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
       name: Run Gnag and build Docker Container
       env:
         ARTIFACTORY_USER: ${{ inputs.artifactory-username }}
@@ -62,11 +73,23 @@ runs:
       run: gcloud auth configure-docker
     - name: Build and Push Container
       run: |-
-        docker push gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}:${{ github.sha }}
-        docker push gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}:latest
+        docker push ${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
+        docker push ${{steps.generate-image-name.IMAGE_NAME}}:latest
+    - name: Set GCloud region
+      run: |-
+        gcloud config set compute/region ${{ inputs.deployment-region }}
+      if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone == '' }}
+    - name: Set GCloud zone
+      run: |-
+        gcloud config set compute/zone ${{ inputs.deployment-zone }}
+      if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone != '' }}
+    - name: Fetch k8s cluster credentials
+      run: |-
+        gcloud container clusters get-credentials ${inputs.cluster-name}
+      if: ${{ inputs.update-deployment == 'true' }}
     - name: Start the latest container
       run: |-
-        kubectl set image deployment "${inputs.deployment-name}-${inputs.deployment-environment}" "${inputs.deployment-name}"="${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
+        kubectl set image deployment "${inputs.deployment-name}-${inputs.deployment-environment}" "${inputs.deployment-name}"="${{ steps.generate-image-name.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
       if: ${{ inputs.update-deployment == 'true' }}
     - name: Checking deployment success status
       run: |-
