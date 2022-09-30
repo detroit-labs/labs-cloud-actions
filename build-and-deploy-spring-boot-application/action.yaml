@@ -59,7 +59,7 @@ runs:
       id: generate-image-name
     - uses: gradle/gradle-build-action@v2
       name: Install Gradle Wrapper
-    - run: ./gradlew clean bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
+    - run: ./gradlew clean bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
       shell: bash
       name: Run Gnag and build Docker Container
       env:
@@ -77,8 +77,8 @@ runs:
     - name: Build and Push Container
       shell: bash
       run: |-
-        docker push ${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
-        docker push ${{steps.generate-image-name.IMAGE_NAME}}:latest
+        docker push ${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
+        docker push ${{steps.generate-image-name.outputs.IMAGE_NAME}}:latest
     - name: Set GCloud region
       shell: bash
       run: |-
@@ -97,7 +97,7 @@ runs:
     - name: Start the latest container
       shell: bash
       run: |-
-        kubectl set image deployment "${inputs.deployment-name}-${inputs.deployment-environment}" "${inputs.deployment-name}"="${{ steps.generate-image-name.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
+        kubectl set image deployment "${inputs.deployment-name}-${inputs.deployment-environment}" "${inputs.deployment-name}"="${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
       if: ${{ inputs.update-deployment == 'true' }}
     - name: Checking deployment success status
       shell: bash
