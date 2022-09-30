@@ -1,0 +1,65 @@
+name: 'Update GKE Deployment'
+description: 'Updates an application running in GKE. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
+
+inputs:
+  gcloud-service-auth:
+    required: true
+    description: 'Credentials file for gcloud set up'
+  project-id:
+    required: true
+    description: 'Google Cloud project ID'
+  deployment-name:
+    required: true
+    description: 'Name of the k8s deployment to update'
+  deployment-environment:
+    required: true
+    description: 'Deployment environment (ex: test, beta, prod, ...)'
+  cluster-name:
+    required: true
+    description: 'Kubernetes cluster where the deployments live'
+  deployment-region:
+    required: false
+    description: 'The region where your deployment is'
+    default: 'us-central1'
+  deployment-zone:
+    required: false
+    description: 'The zone where your deployment is'
+    default: ''
+  deployment-namespace:
+    required: false
+    description: 'Deployment Kubernetes Namespace'
+    default: 'default'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: 'google-github-actions/auth@v0'
+      name: Login to Google Cloud
+      with:
+        credentials_json: ${{ inputs.gcloud-service-auth }}
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v0'
+      with:
+        install_components: 'gke-gcloud-auth-plugin'
+    - name: Set GCloud region
+      shell: bash
+      run: |-
+        gcloud config set compute/region ${{ inputs.deployment-region }}
+      if: ${{ inputs.deployment-zone == '' }}
+    - name: Set GCloud zone
+      shell: bash
+      run: |-
+        gcloud config set compute/zone ${{ inputs.deployment-zone }}
+      if: ${{ inputs.deployment-zone != '' }}
+    - name: Fetch k8s cluster credentials
+      shell: bash
+      run: |-
+        gcloud container clusters get-credentials ${{ inputs.cluster-name }}
+    - name: Start the latest container
+      shell: bash
+      run: |-
+        kubectl set image deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" "${{ inputs.deployment-name }}"="${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
+    - name: Checking deployment success status
+      shell: bash
+      run: |-
+        kubectl rollout status deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" --timeout=5m

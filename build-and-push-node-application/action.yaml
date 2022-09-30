@@ -1,5 +1,5 @@
-name: 'Build and deploy a Node / React application'
-description: 'Builds and deploys a Node / React application to GKE. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
+name: 'Builds and pushed a Node / React application Docker container'
+description: 'Builds a Node / React application Docker container and pushes it to Google Container Registry. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
 
 inputs:
   gcloud-service-auth:
@@ -11,28 +11,6 @@ inputs:
   deployment-name:
     required: true
     description: 'Name of the Google Cloud Project deployment'
-  deployment-environment:
-    required: true
-    description: 'Deployment Environment (ex: test, beta, prod, ...)'
-  deployment-region:
-    required: false
-    description: 'The region where your deployment is'
-    default: 'us-central1'
-  deployment-zone:
-    required: false
-    description: 'The zone where your deployment is'
-    default: ''
-  deployment-namespace:
-    required: false
-    description: 'Deployment Kubernetes Namespace'
-    default: 'default'
-  cluster-name:
-    required: false
-    description: 'Kubernetes Cluster where the deployments live, required if updating the deployment'
-  update-deployment:
-    required: false
-    description: 'Boolean indicating if the deployment should be updated along with the image push'
-    default: 'true'
   build-command:
     required: false
     description: 'Command used to build the application before being packaged into a Docker container, defaults to `npm run build`'
@@ -86,28 +64,3 @@ runs:
       run: |-
         docker push ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }}
         docker push ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
-    - name: Set GCloud region
-      shell: bash
-      run: |-
-        gcloud config set compute/region ${{ inputs.deployment-region }}
-      if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone == '' }}
-    - name: Set GCloud zone
-      shell: bash
-      run: |-
-        gcloud config set compute/zone ${{ inputs.deployment-zone }}
-      if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone != '' }}
-    - name: Fetch k8s cluster credentials
-      shell: bash
-      run: |-
-        gcloud container clusters get-credentials ${{ inputs.cluster-name }}
-      if: ${{ inputs.update-deployment == 'true' }}
-    - name: Start the latest container
-      shell: bash
-      run: |-
-        kubectl set image deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" "${{ inputs.deployment-name }}"="${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
-      if: ${{ inputs.update-deployment == 'true' }}
-    - name: Checking deployment success status
-      shell: bash
-      run: |-
-        kubectl rollout status deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" --timeout=5m
-      if: ${{ inputs.update-deployment == 'true' }}
