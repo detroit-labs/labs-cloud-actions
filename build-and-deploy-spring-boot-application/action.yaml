@@ -56,6 +56,7 @@ runs:
     - uses: gradle/gradle-build-action@v2
       name: Install Gradle Wrapper
     - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
+      shell: bash
       name: Generate the name of the docker image
       id: generate-image-name
     - run: ./gradlew clean gnagCheck bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
