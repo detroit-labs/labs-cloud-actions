@@ -53,13 +53,14 @@ runs:
         distribution: temurin
         java-version: ${{ inputs.java-version }}
         cache: 'gradle'
-    - uses: gradle/gradle-build-action@v2
-      name: Install Gradle Wrapper
     - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
       shell: bash
       name: Generate the name of the docker image
       id: generate-image-name
+    - uses: gradle/gradle-build-action@v2
+      name: Install Gradle Wrapper
     - run: ./gradlew clean gnagCheck bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
+      shell: bash
       name: Run Gnag and build Docker Container
       env:
         ARTIFACTORY_USER: ${{ inputs.artifactory-username }}
@@ -71,28 +72,35 @@ runs:
     - name: Set up Cloud SDK
       uses: 'google-github-actions/setup-gcloud@v0'
     - name: Authorize Docker push
+      shell: bash
       run: gcloud auth configure-docker
     - name: Build and Push Container
+      shell: bash
       run: |-
         docker push ${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
         docker push ${{steps.generate-image-name.IMAGE_NAME}}:latest
     - name: Set GCloud region
+      shell: bash
       run: |-
         gcloud config set compute/region ${{ inputs.deployment-region }}
       if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone == '' }}
     - name: Set GCloud zone
+      shell: bash
       run: |-
         gcloud config set compute/zone ${{ inputs.deployment-zone }}
       if: ${{ inputs.update-deployment == 'true' && inputs.deployment-zone != '' }}
     - name: Fetch k8s cluster credentials
+      shell: bash
       run: |-
         gcloud container clusters get-credentials ${inputs.cluster-name}
       if: ${{ inputs.update-deployment == 'true' }}
     - name: Start the latest container
+      shell: bash
       run: |-
         kubectl set image deployment "${inputs.deployment-name}-${inputs.deployment-environment}" "${inputs.deployment-name}"="${{ steps.generate-image-name.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
       if: ${{ inputs.update-deployment == 'true' }}
     - name: Checking deployment success status
+      shell: bash
       run: |-
         kubectl rollout status deployment "${inputs.deployment-name}-${inputs.deployment-environment}" --timeout=5m
       if: ${{ inputs.update-deployment == 'true' }}
