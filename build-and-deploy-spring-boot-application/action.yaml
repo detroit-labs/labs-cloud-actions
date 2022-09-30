@@ -78,6 +78,7 @@ runs:
       shell: bash
       run: |-
         docker push ${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
+        docker tag ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
         docker push ${{steps.generate-image-name.outputs.IMAGE_NAME}}:latest
     - name: Set GCloud region
       shell: bash
