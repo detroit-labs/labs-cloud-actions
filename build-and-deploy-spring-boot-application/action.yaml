@@ -71,6 +71,8 @@ runs:
         credentials_json: ${{ inputs.gcloud-service-auth }}
     - name: Set up Cloud SDK
       uses: 'google-github-actions/setup-gcloud@v0'
+      with:
+        install_components: 'gke-gcloud-auth-plugin'
     - name: Authorize Docker push
       shell: bash
       run: gcloud auth configure-docker
