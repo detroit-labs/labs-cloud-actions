@@ -59,7 +59,7 @@ runs:
       id: generate-image-name
     - uses: gradle/gradle-build-action@v2
       name: Install Gradle Wrapper
-    - run: ./gradlew clean gnagCheck bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
+    - run: ./gradlew clean bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.IMAGE_NAME}}:${{ github.sha }}
       shell: bash
       name: Run Gnag and build Docker Container
       env:
