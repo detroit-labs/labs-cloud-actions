@@ -2,11 +2,11 @@ This action generates a single page HTML from your project's specific markdown f
 
 ## Including this action in your workflow
 
-To use a custom action from this repo in your project's workflow please include the following lines of code as a step to the `jobs` section:
+To use this action in your project's workflow please include the following lines of code as a step to the `jobs` section:
 
 ```yaml
 - name: Generate aggregated HTML from specified mark down files and pushes that to a Google Cloud storage bucket
-  uses: detroit-labs/labs-cloud-actions/publish-documentation
+  uses: detroit-labs/labs-cloud-actions/publish-documentation@main
   with:
     gcloud-service-auth: <Google Cloud credentials file stored as a secret>
     bucket-name: <Name of the Google Storage Bucket>

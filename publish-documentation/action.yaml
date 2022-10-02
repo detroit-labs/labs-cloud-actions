@@ -1,5 +1,6 @@
 name: 'Publish Documentation'
 description: 'Generates and deploys an aggregated single page documentation to a Google cloud storage bucket'
+
 inputs:
   gcloud-service-auth:
     required: true
@@ -24,6 +25,7 @@ inputs:
   documentation-file-storage-name:
     required: true
     description: 'Name used to store the single page HTML documentation page in Google Cloud storage bucket'
+
 runs:
   using: "composite"
   steps:
