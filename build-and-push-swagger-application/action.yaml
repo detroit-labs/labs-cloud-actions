@@ -35,7 +35,7 @@ runs:
       env:
         RELATIVE_SPEC_FILE_PATH: ${{ inputs.spec-file-path }}
         DOCKER_IMAGE: ${{ steps.generate-image-name.outputs.IMAGE_NAME }}
-        GIT_SHA: :${{ github.sha }}
+        GIT_SHA: ${{ github.sha }}
     - uses: google-github-actions/auth@v0
       name: Login to Google Cloud
       with:
