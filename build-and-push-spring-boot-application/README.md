@@ -3,6 +3,12 @@ This action packages and pushes a Spring Boot app to Google Container Registry. 
 
 ## Setting up your Spring Boot Application
 
+### Java Version
+
+This action allows you to specify the java version you want by providing an option. By default it runs on JDK 17.
+
+### Environment Variables
+
 Before you use this action in your workflow please make sure to evaluate if you need to pass in environment variables to your application. Under the hood, this
 custom action uses the `bootBuildImage` command to dockerize your application. In order to pass in environment variables (if any), make sure to update and
 add the following block to code to your `build.gradle` file:
@@ -36,7 +42,18 @@ To use this action in your project's workflow please include the following lines
   with:
     gcloud-service-auth: <Google Cloud credentials file stored as a secret>
     project-id: <Google Cloud project ID>
-    deployment-name: <Name of the Google Cloud deployment>      
+    deployment-name: <Name of the Google Cloud deployment>
     artifactory-username: <Articatory Username to fetch artifacts required by your project>
     artifactory-password: <Articatory Password to fetch artifacts required by your project>
+```
+
+## Action Customizations
+
+In order to provide a Java version please include the `java-version`:
+
+```yaml
+- name: Build and push app to Google Container Registry
+  uses: detroit-labs/labs-cloud-actions/build-and-push-spring-boot-application@main
+  with:
+    java-version: 18
 ```
