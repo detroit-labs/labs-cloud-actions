@@ -1,4 +1,4 @@
-name: 'Builds and pushed a Node / React application Docker container'
+name: 'Builds and pushes a Node / React application Docker container'
 description: 'Builds a Node / React application Docker container and pushes it to Google Container Registry. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
 
 inputs:

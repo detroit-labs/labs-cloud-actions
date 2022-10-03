@@ -55,15 +55,11 @@ runs:
       shell: bash
       run: |-
         gcloud container clusters get-credentials ${{ inputs.cluster-name }}
-    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
-      shell: bash
-      name: Generate the name of the docker image
-      id: generate-image-name
     - name: Start the latest container
       shell: bash
       run: |-
-        kubectl set image deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" "${{ inputs.deployment-name }}"="${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
+        kubectl set image deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" "${{ inputs.deployment-name }}"="gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
     - name: Checking deployment success status
       shell: bash
       run: |-
-        kubectl rollout status deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" --timeout=5m
+        kubectl rollout status deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" --timeout=5m --namespace="${{ inputs.deployment-namespace }}"
