@@ -1,15 +1,15 @@
 # labs-cloud-actions
 
-Repository that contains all the Github actions needed to package Labs Cloud offerings.
+Repository that contains all the GitHub actions needed to package Labs Cloud offerings.
 
 # Supported Actions
 
 - [Building and Publishing Documentation](publish-documentation/README.md)
 - [Packaging and Pushing a Spring Boot App](build-and-push-spring-boot-application/README.md)
-- [Packaging and Pushing a Node/Readt App](build-and-push-node-application/README.md)
+- [Packaging and Pushing a Node/React App](build-and-push-node-application/README.md)
 - [Updating GKE Deployment](update-gke-deployment/README.md)
  
-# Adding a new Github action
+# Adding a new GitHub action
 
 To add a new action to this repo follow the following steps:
 
