@@ -1,4 +1,5 @@
-This action packages and deploys a Spring Boot app to Google Kubernetes Engine (GKE).
+This action packages and pushes a Spring Boot app to Google Container Registry. In order to update the running deployment to the latest image, please use the
+[update GKE deployment](../update-gke-deployment/action.yaml) action.
 
 ## Setting up your Spring Boot Application
 
