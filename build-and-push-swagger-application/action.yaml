@@ -1,0 +1,54 @@
+name: 'Builds and pushes a Swagger spec Docker container'
+description: 'Builds a Swagger spec Docker container and pushes it to Google Container Registry. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
+
+inputs:
+  gcloud-service-auth:
+    required: true
+    description: 'Credentials file for gcloud set up'
+  project-id:
+    required: true
+    description: 'Google Cloud Project ID'
+  spec-file-path:
+    required: true
+    description: 'The path to the Swagger / OpenAPI root spec file relative to the repo'
+    default: 'swagger/spec.yaml'
+  deployment-name:
+    required: true
+    description: 'Name of the Google Cloud Project deployment'
+    default: 'swagger'
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
+      shell: bash
+      name: Generate the name of the docker image
+      id: generate-image-name
+    - name: Copy Docker resources
+      shell: bash
+      run: |-
+        cp ${{ github.action_path }}/Dockerfile Dockerfile
+        cp ${{ github.action_path }}/action-scripts/buildSwaggerImage.sh buildSwaggerImage.sh
+    - name: Build and Tag Docker container
+      shell: bash
+      run: chmod +x ./buildSwaggerImage.sh && ./buildSwaggerImage.sh
+      env:
+        RELATIVE_SPEC_FILE_PATH: ${{ inputs.spec-file-path }}
+        DOCKER_IMAGE: ${{ steps.generate-image-name.outputs.IMAGE_NAME }}
+        GIT_SHA: ${{ github.sha }}
+    - uses: google-github-actions/auth@v0
+      name: Login to Google Cloud
+      with:
+        credentials_json: ${{ inputs.gcloud-service-auth }}
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        install_components: 'gke-gcloud-auth-plugin'
+    - name: Authorize Docker push
+      shell: bash
+      run: gcloud auth configure-docker
+    - name: Build and Push Container
+      shell: bash
+      run: |-
+        docker push ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
