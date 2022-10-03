@@ -31,16 +31,11 @@ To use a custom action from this repo in your project's workflow please include 
 
 ```yaml
 - name: Build and deploy Spring Boot App to GKE
-    uses: detroit-labs/labs-cloud-actions/build-and-deploy-spring-boot-application@main
+    uses: detroit-labs/labs-cloud-actions/build-and-push-spring-boot-application@main
     with:
       gcloud-service-auth: <Google Cloud credentials file stored as a secret>
       project-id: <Google Cloud project ID>
-      deployment-name: <Name of the Google Cloud deployment>
-      deployment-environment: <The environment being deployed to. For example - Production>
-      deployment-region: <The region being deployed to>
-      deployment-zone: <The zone within the region being deployed to>
-      cluster-name: <Name of the Kubernetes cluster>
-      update-deployment: <Flag to indicate if GKE should update the deployment with the latest version of image>
+      deployment-name: <Name of the Google Cloud deployment>      
       artifactory-username: <Articatory Username to fetch artifacts required by your project>
       artifactory-password: <Articatory Password to fetch artifacts required by your project>
 ```
