@@ -55,6 +55,10 @@ runs:
       shell: bash
       run: |-
         gcloud container clusters get-credentials ${{ inputs.cluster-name }}
+    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
+      shell: bash
+      name: Generate the name of the docker image
+      id: generate-image-name
     - name: Start the latest container
       shell: bash
       run: |-
