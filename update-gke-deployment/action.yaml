@@ -17,14 +17,10 @@ inputs:
   cluster-name:
     required: true
     description: 'Kubernetes cluster where the deployments live'
-  deployment-region:
+  deployment-location:
     required: false
-    description: 'The region where your deployment is'
+    description: 'The region or zone where your deployment is'
     default: 'us-central1'
-  deployment-zone:
-    required: false
-    description: 'The zone where your deployment is'
-    default: ''
   deployment-namespace:
     required: false
     description: 'Deployment Kubernetes Namespace'
@@ -37,28 +33,16 @@ runs:
       name: Login to Google Cloud
       with:
         credentials_json: ${{ inputs.gcloud-service-auth }}
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0
-      with:
-        install_components: 'gke-gcloud-auth-plugin'
-    - name: Set GCloud region
-      shell: bash
-      run: |-
-        gcloud config set compute/region ${{ inputs.deployment-region }}
-      if: ${{ inputs.deployment-zone == '' }}
-    - name: Set GCloud zone
-      shell: bash
-      run: |-
-        gcloud config set compute/zone ${{ inputs.deployment-zone }}
-      if: ${{ inputs.deployment-zone != '' }}
     - name: Fetch k8s cluster credentials
-      shell: bash
-      run: |-
-        gcloud container clusters get-credentials ${{ inputs.cluster-name }}
+      id: get-credentials
+      uses: google-github-actions/get-gke-credentials@v0
+      with:
+        cluster_name: ${{ inputs.cluster-name }}
+        location: ${{ inputs.deployment-location }}
     - name: Start the latest container
       shell: bash
       run: |-
-        kubectl set image deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" "${{ inputs.deployment-name }}"="gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}:${{ github.sha }}" --all --record=true --namespace="${{ inputs.deployment-namespace }}"
+        kubectl set image deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" "${{ inputs.deployment-name }}"="gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}:${{ github.sha }}" --all --namespace="${{ inputs.deployment-namespace }}"
     - name: Checking deployment success status
       shell: bash
       run: |-
