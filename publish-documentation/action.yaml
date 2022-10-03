@@ -1,5 +1,6 @@
 name: 'Publish Documentation'
 description: 'Generates and deploys an aggregated single page documentation to a Google cloud storage bucket'
+
 inputs:
   gcloud-service-auth:
     required: true
@@ -24,6 +25,7 @@ inputs:
   documentation-file-storage-name:
     required: true
     description: 'Name used to store the single page HTML documentation page in Google Cloud storage bucket'
+
 runs:
   using: "composite"
   steps:
@@ -44,9 +46,9 @@ runs:
       with:
         credentials_json: ${{ inputs.gcloud-service-auth }}
     - name: Set up Cloud SDK
-      uses: 'google-github-actions/setup-gcloud@v0'
+      uses: google-github-actions/setup-gcloud@v0
     - name: Upload generated single page documentation (aggregate of all specified mark down files)
-      uses: 'google-github-actions/upload-cloud-storage@v0'
+      uses: google-github-actions/upload-cloud-storage@v0
       with:
         headers: |-
           content-type: text/html

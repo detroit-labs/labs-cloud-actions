@@ -1,0 +1,62 @@
+name: 'Builds and pushes a Spring Boot application Docker container'
+description: 'Builds a Spring Boot application Docker container and pushes it to Google Container Registry. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
+
+inputs:
+  gcloud-service-auth:
+    required: false
+    description: 'Credentials file for gcloud set up'
+  project-id:
+    required: true
+    description: 'Google Cloud Project ID'
+  deployment-name:
+    required: true
+    description: 'Name of the Google Cloud Project deployment'
+  java-version:
+    required: false
+    description: 'Version of Java to use'
+    default: 17
+  artifactory-username:
+    required: true
+    description: 'The user name to access Labs Cloud artifacts from Artifactory'
+  artifactory-password:
+    required: true
+    description: 'The password to access Labs Cloud artifacts from Artifactory'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-java@v3
+      name: Install Java
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java-version }}
+        cache: 'gradle'
+    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
+      shell: bash
+      name: Generate the name of the docker image
+      id: generate-image-name
+    - uses: gradle/gradle-build-action@v2
+      name: Install Gradle Wrapper
+    - run: ./gradlew clean bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
+      shell: bash
+      name: Run Gnag and build Docker Container
+      env:
+        ARTIFACTORY_USER: ${{ inputs.artifactory-username }}
+        ARTIFACTORY_PASSWORD: ${{ inputs.artifactory-password }}
+    - uses: google-github-actions/auth@v0
+      name: Login to Google Cloud
+      with:
+        credentials_json: ${{ inputs.gcloud-service-auth }}
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        install_components: 'gke-gcloud-auth-plugin'
+    - name: Authorize Docker push
+      shell: bash
+      run: gcloud auth configure-docker
+    - name: Build and Push Container
+      shell: bash
+      run: |-
+        docker push ${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
+        docker tag ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
+        docker push ${{steps.generate-image-name.outputs.IMAGE_NAME}}:latest
