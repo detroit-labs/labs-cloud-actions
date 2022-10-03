@@ -1,0 +1,66 @@
+name: 'Builds and pushes a Node / React application Docker container'
+description: 'Builds a Node / React application Docker container and pushes it to Google Container Registry. This workflow should be used for CI-CD workflows to update deployments that have been created with the Labs Cloud Helm Charts.'
+
+inputs:
+  gcloud-service-auth:
+    required: true
+    description: 'Credentials file for gcloud set up'
+  project-id:
+    required: true
+    description: 'Google Cloud Project ID'
+  deployment-name:
+    required: true
+    description: 'Name of the Google Cloud Project deployment'
+  build-command:
+    required: false
+    description: 'Command used to build the application before being packaged into a Docker container, defaults to `npm run build`'
+    default: 'npm run build'
+  docker-file-path:
+    required: false
+    description: 'Path to a custom Docker file relative to the project root, omit to use LabsCloud default'
+    default: 'Dockerfile'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      name: Install Node
+      with:
+        node-version-file: '.nvmrc'
+    - name: Install Node dependencies
+      shell: bash
+      run: npm ci
+    - name: Build Project
+      shell: bash
+      run: ${{ inputs.build-command }}
+    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
+      shell: bash
+      name: Generate the name of the docker image
+      id: generate-image-name
+    - name: Set default Docker resources
+      shell: bash
+      run: |-
+        cp ${{ github.action_path }}/Dockerfile Dockerfile
+        cp -R ${{ github.action_path }}/action-scripts action-scripts/
+      if: "${{ inputs.docker-file-path == '' }}"
+    - name: Build and Tag Docker container
+      shell: bash
+      run: |-
+        docker build -t ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} -f ${{ inputs.docker-file-path }} .
+        docker tag ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
+    - uses: 'google-github-actions/auth@v0'
+      name: Login to Google Cloud
+      with:
+        credentials_json: ${{ inputs.gcloud-service-auth }}
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v0'
+      with:
+        install_components: 'gke-gcloud-auth-plugin'
+    - name: Authorize Docker push
+      shell: bash
+      run: gcloud auth configure-docker
+    - name: Build and Push Container
+      shell: bash
+      run: |-
+        docker push ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
