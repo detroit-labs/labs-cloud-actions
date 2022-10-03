@@ -10,7 +10,7 @@ This action allows you to specify the location of your Swagger spec inside your 
 To use this action in your project's workflow please include the following lines of code as a step to the `jobs` section:
 
 ```yaml
-- name: Build and push app to Google Container Registry
+- name: Build and push Swagger spec to Google Container Registry
   uses: detroit-labs/labs-cloud-actions/build-and-push-node-application@main
   with:
     gcloud-service-auth: <Google Cloud credentials file stored as a secret>
