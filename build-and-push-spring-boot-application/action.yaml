@@ -30,16 +30,19 @@ runs:
       with:
         distribution: temurin
         java-version: ${{ inputs.java-version }}
-        cache: 'gradle'
     - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
       shell: bash
       name: Generate the name of the docker image
       id: generate-image-name
     - uses: gradle/gradle-build-action@v2
-      name: Install Gradle Wrapper
-    - run: ./gradlew clean bootBuildImage -Partifactory_user=${{ inputs.artifactory-username }} -Partifactory_password=${{ inputs.artifactory-password }} --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
-      shell: bash
       name: Run Gnag and build Docker Container
+      with:
+        arguments: |
+          clean 
+          bootBuildImage 
+          -Partifactory_user=${{ inputs.artifactory-username }} 
+          -Partifactory_password=${{ inputs.artifactory-password }} 
+          --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
       env:
         ARTIFACTORY_USER: ${{ inputs.artifactory-username }}
         ARTIFACTORY_PASSWORD: ${{ inputs.artifactory-password }}
