@@ -35,7 +35,7 @@ runs:
       name: Generate the name of the docker image
       id: generate-image-name
     - uses: gradle/gradle-build-action@v2
-      name: Run Gnag and build Docker Container
+      name: Build Docker Container
       with:
         arguments: |
           clean 
