@@ -3,8 +3,16 @@
 * To use a different CSS file, use the css-file-path action input.
 */
 
+.markdown-body {
+    background: #EAE6DE;
+}
+
+#markdown-toc {
+    background: #232222;
+}
+
 #markdown-toc a {
-    color: #fff;
+    color: #E6E3DC;
     text-decoration: none;
     display: inline-flex;
     width: 100%;
@@ -12,4 +20,13 @@
     white-space: normal;
     overflow: unset;
     text-overflow: unset;
+}
+
+h1, h2, h3,
+h4, h5, h6 {
+    font-family: "Space Mono", monospace;
+}
+
+body {
+    font-family: "Inter";
 }
