@@ -7,6 +7,7 @@ Repository that contains all the GitHub actions needed to package Labs Cloud off
 - [Building and Publishing Documentation](publish-documentation/README.md)
 - [Packaging and Pushing a Spring Boot App](build-and-push-spring-boot-application/README.md)
 - [Packaging and Pushing a Node/React App](build-and-push-node-application/README.md)
+- [Packaging and Pushing a Swagger Spec](build-and-push-swagger-application/README.md)
 - [Updating GKE Deployment](update-gke-deployment/README.md)
  
 # Adding a new GitHub action
