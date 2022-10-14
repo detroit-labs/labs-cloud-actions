@@ -1,0 +1,46 @@
+name: Slack Resuable CI
+
+on:
+  workflow_call:
+    secrets:
+      slack:
+        required: true
+    inputs:
+      status:
+        type: string
+        required: true
+        description: "status of build job"
+      workflow:
+        type: string
+        required: true
+        description: "workflow of build job"
+      run_number:
+        type: string
+        required: true
+        description: "run number of build job"
+      url:
+        type: string
+        required: true
+        description: "url of build job"
+
+jobs:
+  notify:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      
+    - name: Send GitHub Action trigger data to Slack workflow
+      id: slack
+      uses: slackapi/slack-github-action@v1.22.0
+      with:
+       payload: |
+        {
+        "status": "${{ inputs.status }}",
+        "workflow": "${{ inputs.workflow }}",
+        "run_number":"${{ inputs.run_number }}",
+        "url": "${{ inputs.url }}"
+        
+        }
+      env:
+       SLACK_WEBHOOK_URL: ${{ secrets.slack }}
