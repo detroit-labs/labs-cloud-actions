@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-go install github.com/nocd5/md2html@latest
+
+GO111MODULE=on go get github.com/nocd5/md2html@v2.0.0
 
 md2html -e -t $LIST_OF_PATHS_TO_MARKDOWN_FILES \
 -c $PATH_TO_CSS_FILE \
