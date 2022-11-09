@@ -15,12 +15,6 @@ inputs:
     required: false
     description: 'Version of Java to use'
     default: 17
-  artifactory-username:
-    required: true
-    description: 'The user name to access Labs Cloud artifacts from Artifactory'
-  artifactory-password:
-    required: true
-    description: 'The password to access Labs Cloud artifacts from Artifactory'
 
 runs:
   using: "composite"
@@ -40,12 +34,7 @@ runs:
         arguments: |
           clean 
           bootBuildImage 
-          -Partifactory_user=${{ inputs.artifactory-username }} 
-          -Partifactory_password=${{ inputs.artifactory-password }} 
           --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
-      env:
-        ARTIFACTORY_USER: ${{ inputs.artifactory-username }}
-        ARTIFACTORY_PASSWORD: ${{ inputs.artifactory-password }}
     - uses: google-github-actions/auth@v0
       name: Login to Google Cloud
       with:

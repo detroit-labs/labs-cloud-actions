@@ -25,6 +25,10 @@ inputs:
     required: false
     description: 'Deployment Kubernetes Namespace'
     default: 'default'
+  deployment-rollout-timeout:
+    required: false
+    description: 'Time to wait for a deployment to finish before marking it as a failure (ex: 10m)'
+    default: '10m'
 
 runs:
   using: "composite"
@@ -46,4 +50,4 @@ runs:
     - name: Checking deployment success status
       shell: bash
       run: |-
-        kubectl rollout status deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" --timeout=5m --namespace="${{ inputs.deployment-namespace }}"
+        kubectl rollout status deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" --timeout="${{ inputs.deployment-rollout-timeout }}" --namespace="${{ inputs.deployment-namespace }}"

@@ -27,3 +27,12 @@ If you do not want to use the `default` Kubernetes namespace you can provide a c
   with:
     deployment-namespace: <The k8s namespace your deployment is in>
 ```
+
+If your application takes a long time to complete its rollout you can adjust teh amount of time the build will wait before marking it as a failure. This is 10 minutes by default.
+
+```yaml
+- name: Updates the GKE deployment to the current version of the source code.
+  uses: detroit-labs/labs-cloud-actions/update-gke-deployment@main
+  with:
+    deployment-rollout-timeout: 15m
+```
