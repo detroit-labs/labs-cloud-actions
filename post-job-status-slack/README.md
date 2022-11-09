@@ -46,7 +46,7 @@ jobs:
          - name: first step
          - name: second step
          - name: Set Job Status
-           run: echo "::set-output name=job_status::${{job.status}}"
+           run: echo "job_status=${{job.status}}" >> $GITHUB_OUTPUT
 ```
 You can read more about defining outputs for jobs [here](https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs)
 

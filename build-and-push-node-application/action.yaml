@@ -33,7 +33,7 @@ runs:
     - name: Build Project
       shell: bash
       run: ${{ inputs.build-command }}
-    - run: echo '::set-output name=IMAGE_NAME::gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}'
+    - run: echo "IMAGE_NAME=gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}" >> $GITHUB_OUTPUT
       shell: bash
       name: Generate the name of the docker image
       id: generate-image-name
