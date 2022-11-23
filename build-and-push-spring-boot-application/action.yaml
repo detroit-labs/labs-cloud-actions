@@ -14,7 +14,11 @@ inputs:
   java-version:
     required: false
     description: 'Version of Java to use'
-    default: 17
+    default: '17'
+  gradle-module-name:
+    required: false
+    description: 'The name of the Gradle module to build in a multi module project'
+    default: ''
 
 runs:
   using: "composite"
@@ -32,8 +36,8 @@ runs:
       name: Build Docker Container
       with:
         arguments: |
-          clean 
-          bootBuildImage 
+          ${{ inputs.gradle-module-name }}:clean 
+          ${{ inputs.gradle-module-name }}:bootBuildImage 
           --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
     - uses: google-github-actions/auth@v0
       name: Login to Google Cloud

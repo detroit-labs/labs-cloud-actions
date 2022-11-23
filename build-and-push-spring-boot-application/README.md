@@ -55,3 +55,12 @@ In order to provide a Java version please include the `java-version`:
   with:
     java-version: 18
 ```
+
+If you have multiple modules in your Gradle project you can specify which module to build and push using `gradle-module-name`:
+
+```yaml
+- name: Build and push app to Google Container Registry
+  uses: detroit-labs/labs-cloud-actions/build-and-push-spring-boot-application@main
+  with:
+    gradle-module-name: 'my-application'
+```
