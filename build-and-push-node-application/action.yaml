@@ -18,7 +18,6 @@ inputs:
   docker-file-path:
     required: false
     description: 'Path to a custom Docker file relative to the project root, omit to use LabsCloud default'
-    default: 'Dockerfile'
 
 runs:
   using: "composite"
@@ -44,9 +43,11 @@ runs:
         cp -R ${{ github.action_path }}/action-scripts action-scripts/
       if: "${{ inputs.docker-file-path == '' }}"
     - name: Build and Tag Docker container
+      env:
+        DOCKER_FILE_PATH: ${{ inputs.docker-file-path || "Dockerfile" }}
       shell: bash
       run: |-
-        docker build -t ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} -f ${{ inputs.docker-file-path }} .
+        docker build -t ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} -f "${DOCKER_FILE_PATH}" .
         docker tag ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
     - uses: google-github-actions/auth@v0
       name: Login to Google Cloud
