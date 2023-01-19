@@ -44,7 +44,7 @@ runs:
       if: "${{ inputs.docker-file-path == '' }}"
     - name: Build and Tag Docker container
       env:
-        DOCKER_FILE_PATH: ${{ inputs.docker-file-path || "Dockerfile" }}
+        DOCKER_FILE_PATH: ${{ inputs.docker-file-path || 'Dockerfile' }}
       shell: bash
       run: |-
         docker build -t ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} -f "${DOCKER_FILE_PATH}" .
