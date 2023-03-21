@@ -22,6 +22,11 @@ inputs:
     required: false
     description: 'Path to a custom Nginx config file relative to the project root, omit to use LabsCloud default'
 
+outputs:
+  image-name:
+    description: "The fully qualified image name pushed to the repository"
+    value: ${{ steps.generate-image-name.outputs.IMAGE_NAME }}
+
 runs:
   using: "composite"
   steps:

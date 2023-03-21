@@ -20,6 +20,11 @@ inputs:
     description: 'The name of the Gradle module to build in a multi module project'
     default: ''
 
+outputs:
+  image-name:
+    description: "The fully qualified image name pushed to the repository"
+    value: ${{ steps.generate-image-name.outputs.IMAGE_NAME }}
+
 runs:
   using: "composite"
   steps:

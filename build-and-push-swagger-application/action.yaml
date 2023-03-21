@@ -17,6 +17,11 @@ inputs:
     description: 'Name of the Google Cloud Project deployment'
     default: 'swagger'
 
+outputs:
+  image-name:
+    description: "The fully qualified image name pushed to the repository"
+    value: ${{ steps.generate-image-name.outputs.IMAGE_NAME }}
+
 runs:
   using: "composite"
   steps:
