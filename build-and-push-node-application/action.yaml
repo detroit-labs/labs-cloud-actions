@@ -18,6 +18,9 @@ inputs:
   docker-file-path:
     required: false
     description: 'Path to a custom Docker file relative to the project root, omit to use LabsCloud default'
+  nginx-config-path:
+    required: false
+    description: 'Path to a custom Nginx config file relative to the project root, omit to use LabsCloud default'
 
 runs:
   using: "composite"
@@ -45,9 +48,10 @@ runs:
     - name: Build and Tag Docker container
       env:
         DOCKER_FILE_PATH: ${{ inputs.docker-file-path || 'Dockerfile' }}
+        NGINX_CONFIG_PATH: ${{ inputs.nginx-config-path || './action-scripts/nginx.conf' }}
       shell: bash
       run: |-
-        docker build -t ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} -f "${DOCKER_FILE_PATH}" .
+        docker build --build-arg NGINX_CONFIG_PATH="${NGINX_CONFIG_PATH}" -t ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} -f "${DOCKER_FILE_PATH}" .
         docker tag ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
     - uses: google-github-actions/auth@v0
       name: Login to Google Cloud
