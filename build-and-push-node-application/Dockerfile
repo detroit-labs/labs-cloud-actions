@@ -9,7 +9,7 @@ RUN apk update && \
     rm -f /var/cache/apk/*.tar.gz && \
     rm -f /var/nginx/cache/*
 
-RUN rm /app/env.js
+RUN rm /app/env.js; exit 0
 
 COPY ./action-scripts/entrypoint.sh /
 COPY ./action-scripts/nginx.conf /etc/nginx/nginx.conf
