@@ -51,3 +51,8 @@ runs:
       shell: bash
       run: |-
         kubectl rollout status deployment "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}" --timeout="${{ inputs.deployment-rollout-timeout }}" --namespace="${{ inputs.deployment-namespace }}"
+    - name: Deployment failure
+      shell: bash
+      if: ${{ inputs.deployment-rollout-timeout }} == '10m'
+      run: |-
+        print "Failure to deploy ${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}"
