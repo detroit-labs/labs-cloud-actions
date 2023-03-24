@@ -56,3 +56,4 @@ runs:
       if: ${{ inputs.deployment-rollout-timeout }} == '10m'
       run: |-
         print "Failure to deploy ${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}"
+        kubectl logs "${{ inputs.deployment-name }}-${{ inputs.deployment-environment }}"
