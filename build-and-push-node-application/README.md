@@ -62,3 +62,12 @@ If you do not want to use the provided Dockerfile with runtime variable support 
   with:
     docker-file-path: 'MyCustomDockerfile'
 ```
+
+If you do not want to use the provided Nginx config you can provide a custom config file with the following action option.
+
+```yaml
+- name: Build and push app to Google Container Registry
+  uses: detroit-labs/labs-cloud-actions/build-and-push-node-application@main
+  with:
+    nginx-config-path: './config/nginx.conf'
+```
