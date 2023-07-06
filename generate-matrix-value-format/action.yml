@@ -1,4 +1,4 @@
-name: Generate Matrix Value Format
+name: 'Generate Matrix Value Format'
 
 inputs:
   element_list:
