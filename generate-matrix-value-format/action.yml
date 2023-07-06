@@ -1,7 +1,7 @@
 name: 'Generate Matrix Value Format'
 
 inputs:
-  element_list:
+  element-list:
     description: 'List of elements'
     required: true
     type: string
@@ -19,7 +19,7 @@ runs:
       shell: bash
       run: |
         declare -a the_array=()
-        IFS=', ' read -ra my_array <<< ${{ inputs.element_list }}
+        IFS=', ' read -ra my_array <<< ${{ inputs.element-list }}
         jsonObject="["
         for ((i=0; i<${#my_array[@]}; i++)); do
           jsonObject+="\"${my_array[i]}\""
