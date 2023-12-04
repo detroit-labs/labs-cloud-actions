@@ -41,12 +41,12 @@ runs:
         RELATIVE_SPEC_FILE_PATH: ${{ inputs.spec-file-path }}
         DOCKER_IMAGE: ${{ steps.generate-image-name.outputs.IMAGE_NAME }}
         GIT_SHA: ${{ github.sha }}
-    - uses: google-github-actions/auth@v0
+    - uses: google-github-actions/auth@v2
       name: Login to Google Cloud
       with:
         credentials_json: ${{ inputs.gcloud-service-auth }}
     - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0
+      uses: google-github-actions/setup-gcloud@v1
       with:
         install_components: 'gke-gcloud-auth-plugin'
     - name: Authorize Docker push

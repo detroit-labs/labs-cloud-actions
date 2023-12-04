@@ -30,7 +30,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       name: Install Node
       with:
         node-version-file: '.nvmrc'
@@ -58,12 +58,12 @@ runs:
       run: |-
         docker build --build-arg NGINX_CONFIG_PATH="${NGINX_CONFIG_PATH}" -t ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} -f "${DOCKER_FILE_PATH}" .
         docker tag ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:${{ github.sha }} ${{ steps.generate-image-name.outputs.IMAGE_NAME }}:latest
-    - uses: google-github-actions/auth@v0
+    - uses: google-github-actions/auth@v2
       name: Login to Google Cloud
       with:
         credentials_json: ${{ inputs.gcloud-service-auth }}
     - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0
+      uses: google-github-actions/setup-gcloud@v1
       with:
         install_components: 'gke-gcloud-auth-plugin'
     - name: Authorize Docker push
