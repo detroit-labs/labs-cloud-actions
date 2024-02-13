@@ -15,7 +15,6 @@ inputs:
   deployment-name:
     required: true
     description: 'Name of the Google Cloud Project deployment'
-    default: 'swagger'
 
 outputs:
   image-name:
@@ -25,7 +24,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: echo "IMAGE_NAME=gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}" >> $GITHUB_OUTPUT
+    - run: echo "IMAGE_NAME=us-central1-docker.pkg.dev/${{ inputs.project-id }}/${{ inputs.deployment-name }}" >> $GITHUB_OUTPUT
       shell: bash
       name: Generate the name of the docker image
       id: generate-image-name
