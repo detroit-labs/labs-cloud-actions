@@ -54,7 +54,7 @@ runs:
         install_components: 'gke-gcloud-auth-plugin'
     - name: Authorize Docker push
       shell: bash
-      run: gcloud auth configure-docker
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
     - name: Build and Push Container
       shell: bash
       run: |-
