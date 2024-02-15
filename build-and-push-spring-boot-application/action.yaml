@@ -33,7 +33,7 @@ runs:
       with:
         distribution: temurin
         java-version: ${{ inputs.java-version }}
-    - run: echo "IMAGE_NAME=gcr.io/${{ inputs.project-id }}/${{ inputs.deployment-name }}" >> $GITHUB_OUTPUT
+    - run: echo "IMAGE_NAME=us-central1-docker.pkg.dev/${{ inputs.project-id }}/${{ inputs.deployment-name }}" >> $GITHUB_OUTPUT
       shell: bash
       name: Generate the name of the docker image
       id: generate-image-name
@@ -41,8 +41,8 @@ runs:
       name: Build Docker Container
       with:
         arguments: |
-          ${{ inputs.gradle-module-name }}:clean 
-          ${{ inputs.gradle-module-name }}:bootBuildImage 
+          ${{ inputs.gradle-module-name }}:clean
+          ${{ inputs.gradle-module-name }}:bootBuildImage
           --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
     - uses: google-github-actions/auth@v2
       name: Login to Google Cloud
