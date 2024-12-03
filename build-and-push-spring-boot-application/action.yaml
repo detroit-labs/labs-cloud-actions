@@ -37,12 +37,13 @@ runs:
       shell: bash
       name: Generate the name of the docker image
       id: generate-image-name
-    - uses: gradle/actions/setup-gradle@v3
-      name: Build Docker Container
-      with:
-        arguments: |
-          ${{ inputs.gradle-module-name }}:clean
-          ${{ inputs.gradle-module-name }}:bootBuildImage
+    - name: Set Up Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build Docker Container
+      run: |
+        ./gradlew \
+          ${{ inputs.gradle-module-name }}:clean \
+          ${{ inputs.gradle-module-name }}:bootBuildImage \
           --imageName=${{steps.generate-image-name.outputs.IMAGE_NAME}}:${{ github.sha }}
     - uses: google-github-actions/auth@v2
       name: Login to Google Cloud
