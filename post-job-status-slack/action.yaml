@@ -32,7 +32,7 @@ jobs:
       
     - name: Send GitHub Action trigger data to Slack workflow
       id: slack
-      uses: slackapi/slack-github-action@v1.22.0
+      uses: slackapi/slack-github-action@v3
       with:
        payload: |
         {
